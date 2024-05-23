@@ -13,4 +13,7 @@
   h3 {
     @apply text-lg;
   }
+  .theme-switcher input:checked + label span {
+    left: 1rem;
+  }
 }
