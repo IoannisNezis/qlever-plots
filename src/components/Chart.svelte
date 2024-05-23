@@ -1,74 +1,62 @@
 <script lang="ts">
     import * as d3 from 'd3';
+    import { analyseStructure, transformData } from '$lib/utils';
     import { onMount } from 'svelte';
-    import SettingsButton from './SettingsButton.svelte';
-    import BarChart from './BarChart.svelte';
+    import ChartSettings from './ChartSettings.svelte';
+    import type { QleverData, QleverResponse, StructureAnalysis } from '$lib/types';
+    import LineChart from './LineChart.svelte';
 
     export let title: string;
     export let dataUrl: string;
-    let loading: boolean = true;
 
-    interface ChartOptions{
-        data: number[],
-        dataLabels: string[],
-        yAxisLabel: string
-    }
-    const options:ChartOptions = {
+    let loading: boolean = true;
+    let loadingFailed: boolean = false;
+
+    const options = {
         data: [],
         dataLabels: [],
         yAxisLabel: ''
     };
 
-    interface QleverResultBinding {
-        [key: string]: {
-            value: string;
-            type: string;
-        };
-    }
-    interface QleverQueryResult {
-        head: {
-            vars: string[];
-        };
-        results: {
-            bindings: QleverResultBinding[];
-        };
-    }
+    let data: QleverData;
+    let structure: StructureAnalysis;
+    let labelColumn = 'startdate';
+    let valueColumn = 'success_rate_10';
 
-    async function fetchJson(url: string) {
-        let response = (await d3.json(url)) as QleverQueryResult;
+    async function fetchJson(url: string): Promise<QleverResponse> {
+        let response = (await d3.json(url)) as QleverResponse;
         return response;
     }
 
     onMount(() => {
         fetchJson(dataUrl)
-            .then((result) => {
-                const dataLabelName = result.head.vars[0];
-                const dataValueName = result.head.vars[1];
-                options.yAxisLabel = result.head.vars[1];
-                options.data = result.results.bindings.map((x) => {
-                    return parseFloat(x[dataValueName].value);
-                });
-                options.dataLabels = result.results.bindings.map((x) => {
-                    return x[dataLabelName].value;
-                });
-                loading = false;
+            .then((response) => {
+                structure = analyseStructure(response);
+                data = transformData(response, structure);
+                console.log(data);
             })
             .catch((error) => {
                 console.log(error);
+                loadingFailed = true;
+            })
+            .finally(() => {
+                loading = false;
             });
     });
 </script>
 
-<div class="static bg-slate-200 rounded-lg shadow-lg hover:shadow-xl p-3 flex flex-col w-full">
+<div
+    class="static bg-zinc-200 dark:bg-[#1c546d] rounded-lg shadow-lg hover:shadow-xl p-3 flex flex-col w-full"
+>
     <div class="flex justify-between items-center">
         <div></div>
         <h1 class="underline">{title}</h1>
         <div>
-            <SettingsButton />
+            <ChartSettings />
         </div>
     </div>
     {#if loading}
-        <div class="h-[400px] border grid">
+        <div class="h-[400px] grid">
             <div class="place-self-center flex">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +76,27 @@
                 <span>Loading data...</span>
             </div>
         </div>
+    {:else if loadingFailed}
+        <div class="h-[400px] grid">
+            <div class="place-self-center flex items-center border border-red-500 p-2 rounded-lg">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-7 h-7 text-red-500"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+                    />
+                </svg>
+                <span class="ml-3">Retrieving data has failed! Check the query.</span>
+            </div>
+        </div>
     {:else}
-        <BarChart {...options} />
+        <LineChart {data} {structure} {labelColumn} {valueColumn}></LineChart>
     {/if}
 </div>
