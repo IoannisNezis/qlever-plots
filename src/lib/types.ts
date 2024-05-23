@@ -33,7 +33,8 @@ export type LineChartConfig = {
     yAxisColumns: string[],
     xAxisScale: "time" | "dings", // TODO: populate possible lineChart scales
     strokeWeight: number,
-    tention: number
+    tention: number,
+    nodeRadius: number
 }
 
 export type ChartConfig = LineChartConfig;

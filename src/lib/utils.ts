@@ -5,6 +5,7 @@ import type { ChartConfig, MetaConfig, QleverData, QleverResponse, StructureAnal
 
 const datatypeMapping: Record<string, string> = {
     'http://www.w3.org/2001/XMLSchema#decimal': "number",
+    'http://www.w3.org/2001/XMLSchema#int': "number",
     'http://www.w3.org/2001/XMLSchema#date': "date",
 };
 
@@ -78,7 +79,8 @@ export function predictConfig(strukture: StructureAnalysis, data: QleverData): M
         xAxisColumn: 'startdate',
         yAxisColumns: ['success_rate_10', 'success_rate_6'],
         xAxisScale: 'time',
-        strokeWeight: 4,
-        tention: 0.3
+        strokeWeight: 2,
+        tention: 0.3,
+        nodeRadius: 30
     }];
 }
