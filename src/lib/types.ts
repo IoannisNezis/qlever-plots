@@ -1,5 +1,3 @@
-import { map } from "d3";
-
 export type Dataype = "date" | "number" | "string";
 
 export type QleverResponse = {
@@ -29,3 +27,17 @@ export type StructureAnalysis = {
 export type QleverData = {
     [key: string]: number[] | Date[] | string[];
 }
+
+export type LineChartConfig = {
+    xAxisColumn: string,
+    yAxisColumns: string[],
+    xAxisScale: "time" | "dings", // TODO: populate possible lineChart scales
+    strokeWeight: number,
+    tention: number
+}
+
+export type ChartConfig = LineChartConfig;
+export type ChartType = "line";
+export type MetaConfig = ["line", LineChartConfig];
+
+export type LoadingState = "loading" | "done" | "failed";

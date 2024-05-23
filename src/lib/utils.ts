@@ -1,4 +1,4 @@
-import type { QleverData, QleverResponse, StructureAnalysis } from "./types";
+import type { ChartConfig, MetaConfig, QleverData, QleverResponse, StructureAnalysis } from "./types";
 
 
 
@@ -52,19 +52,33 @@ export function transformData(qleverResponse: QleverResponse, structureAnalysis:
     });
     qleverResponse.results.bindings.forEach((elem) => {
         structureAnalysis.columns.forEach(({ name, datatype }) => {
-            switch (datatype) {
-                case "number":
-                    result[name].push(parseFloat(elem[name].value));
-                    break;
-                case "date":
-                    result[name].push(new Date(elem[name].value));
-                    break;
-                default:
-                    result[name].push(elem[name].value);
-                    break;
+            if (name in elem) {
+                switch (datatype) {
+                    case "number":
+                        result[name].push(parseFloat(elem[name].value));
+                        break;
+                    case "date":
+                        result[name].push(new Date(elem[name].value));
+                        break;
+                    default:
+                        result[name].push(elem[name].value);
+                        break;
+                }
+            }
+            else {
+                result[name].push(undefined);
             }
         });
     });
     return result;
+}
 
+export function predictConfig(strukture: StructureAnalysis, data: QleverData): MetaConfig {
+    return ["line", {
+        xAxisColumn: 'startdate',
+        yAxisColumns: ['success_rate_10', 'success_rate_6'],
+        xAxisScale: 'time',
+        strokeWeight: 4,
+        tention: 0.3
+    }];
 }

@@ -1,14 +1,12 @@
 <script lang="ts">
-    import type { QleverData, StructureAnalysis } from '$lib/types';
+    import type { LineChartConfig, QleverData, StructureAnalysis } from '$lib/types';
     import * as d3 from 'd3';
     import { onMount } from 'svelte';
 
     export let data: QleverData;
-    export let labelColumn;
     export let structure: StructureAnalysis;
-    export let valueColumn;
+    export let config: LineChartConfig;
 
-    console.log(data);
     let node: HTMLElement;
 
     onMount(() => {
@@ -25,9 +23,9 @@
     let gx: SVGGElement;
     let gy: SVGGElement;
 
-    let [minValue, maxValue]: [number, number] = d3.extent(data[valueColumn]);
+    let [minValue, maxValue]: [number, number] = d3.extent(data[config.yAxisColumns[0]]);
 
-    $: x = d3.scaleTime(d3.extent(data[labelColumn]), [marginLeft, width - marginRight]);
+    $: x = d3.scaleTime(d3.extent(data[config.xAxisColumn]), [marginLeft, width - marginRight]);
     $: d3.select(gx).call(d3.axisBottom(x));
     $: y = d3.scaleLinear(
         [Math.floor(minValue), Math.ceil(maxValue)],
@@ -38,10 +36,10 @@
     // Line generator
     const line = d3
         .line(
-            (d) => x(d[labelColumn]),
-            (d) => y(d[valueColumn])
+            (d) => x(d[config.xAxisColumn]),
+            (d) => y(d[config.yAxisColumns[0]])
         )
-        .curve(d3.curveCatmullRom.alpha(0));
+        .curve(d3.curveCardinal.tension(config.tention));
 
     let path = '';
     $: if (x == undefined) {
@@ -61,8 +59,24 @@
 
 <div bind:this={node} class="flex w-full">
     <svg {width} {height}>
-        <g bind:this={gx} stroke-width="1" transform="translate(0,{height - marginBottom})" />
-        <g bind:this={gy} stroke-width="1" transform="translate({marginLeft},0)" />
-        <path fill="none" stroke="steelblue" stroke-width="2" d={path}></path>
+        <g
+            bind:this={gx}
+            stroke-width="1"
+            class="text-black dark:text-white"
+            transform="translate(0,{height - marginBottom})"
+        />
+        <g
+            bind:this={gy}
+            class="text-black dark:text-white"
+            stroke-width="1"
+            transform="translate({marginLeft},0)"
+        />
+        <path
+            fill="none"
+            class="text-red-600 dark:text-red-800"
+            stroke="currentcolor"
+            stroke-width={config.strokeWeight}
+            d={path}
+        ></path>
     </svg>
 </div>
