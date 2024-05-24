@@ -1,5 +1,5 @@
 <script>
-    import ThemeSwitcher from '$lib/theme-switcher.svelte';
+    import ThemeSwitcher from './theme-switcher.svelte';
 </script>
 
 <div class="flex justify-between items-center w-full bg-zinc-800 dark:bg-zinc-900 px-20">
