@@ -1,8 +1,8 @@
 <script lang="ts">
     import * as d3 from 'd3';
-    import { analyseStructure, transformData, predictConfig } from '$lib/utils';
+    import { analyseStructure, transformData, predictConfig } from '$lib/ts/utils';
+
     import { onMount } from 'svelte';
-    import ChartSettings from './ChartSettings.svelte';
     import type {
         ChartConfig,
         ChartType,
@@ -10,7 +10,7 @@
         QleverData,
         QleverResponse,
         StructureAnalysis
-    } from '$lib/types';
+    } from '$lib/ts/types';
     import LineChart from './charts/LineChart.svelte';
     import LoadingCard from './loadingCard.svelte';
     import Maximize from '$lib/svg/maximize.svelte';

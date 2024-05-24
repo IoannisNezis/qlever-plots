@@ -74,13 +74,18 @@ export function transformData(qleverResponse: QleverResponse, structureAnalysis:
     return result;
 }
 
-export function predictConfig(strukture: StructureAnalysis, data: QleverData): MetaConfig {
-    return ["line", {
-        xAxisColumn: 'startdate',
-        yAxisColumns: ['success_rate_10', 'success_rate_6'],
-        xAxisScale: 'time',
-        strokeWeight: 2,
-        tention: 0.3,
-        nodeRadius: 30
-    }];
+export function predictConfig(structure: StructureAnalysis, data: QleverData): MetaConfig {
+    const dateCols: string[] = structure.columns.filter((col) => col.datatype == "date").map((col) => col.name);
+    const numberCols: string[] = structure.columns.filter((col) => col.datatype == "number").map((col) => col.name);
+
+    if (dateCols.length > 0 && numberCols.length > 0) {
+        return ["line", {
+            xAxisColumn: dateCols[0],
+            yAxisColumns: numberCols,
+            xAxisScale: 'time',
+            strokeWeight: 2,
+            tention: 1,
+            nodeRadius: 30
+        }];
+    }
 }
